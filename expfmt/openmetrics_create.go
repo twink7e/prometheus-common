@@ -132,11 +132,13 @@ func MetricFamilyToOpenMetrics(out io.Writer, in *dto.MetricFamily) (written int
 	}
 	switch metricType {
 	case dto.MetricType_COUNTER:
-		if strings.HasSuffix(name, "_total") {
-			n, err = w.WriteString(" counter\n")
-		} else {
-			n, err = w.WriteString(" unknown\n")
-		}
+		n, err = w.WriteString(" counter\n")
+		// twink7e: I feel bad.
+		//if strings.HasSuffix(name, "_total") {
+		//	n, err = w.WriteString(" counter\n")
+		//} else {
+		//	n, err = w.WriteString(" unknown\n")
+		//}
 	case dto.MetricType_GAUGE:
 		n, err = w.WriteString(" gauge\n")
 	case dto.MetricType_SUMMARY:
@@ -345,7 +347,10 @@ func writeOpenMetricsSample(
 			return written, err
 		}
 		// TODO(beorn7): Format this directly without converting to a float first.
-		n, err = writeOpenMetricsFloat(w, float64(*metric.TimestampMs)/1000)
+		// twink7e: I don't know why them write this, but I test was wrong.!
+		//n, err = writeOpenMetricsFloat(w, float64(*metric.TimestampMs)/1000)
+		// twink7e: I've tested it and it's working well on my side.
+		n, err := w.WriteString(fmt.Sprint(*metric.TimestampMs))
 		written += n
 		if err != nil {
 			return written, err
